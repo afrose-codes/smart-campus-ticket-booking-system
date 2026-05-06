@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Event Feedback - SmartCampus</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}"/>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+</head>
+<body>
+<nav class="navbar">
+    <a href="/" class="navbar-brand"><div class="brand-icon"><i class="fas fa-calendar-star"></i></div>SmartCampus</a>
+    <ul class="navbar-nav">
+        <li><a href="/">Home</a></li>
+        <li><a href="/events">Events</a></li>
+    </ul>
+    <div class="navbar-actions">
+        <a href="/login" class="btn btn-primary btn-sm">Admin Login</a>
+    </div>
+</nav>
+
+<div class="page-content" style="max-width:700px;margin:0 auto;">
+    <a href="/events" style="display:inline-flex;align-items:center;gap:0.5rem;color:var(--text-muted);text-decoration:none;font-size:0.88rem;margin-bottom:1.5rem;">
+        <i class="fas fa-arrow-left"></i> Back to Events
+    </a>
+
+    <div class="card" style="padding:2rem;">
+        <div style="text-align:center;margin-bottom:2rem;">
+            <div style="font-size:2.5rem;margin-bottom:0.75rem;">⭐</div>
+            <h2 style="font-size:1.5rem;font-weight:800;color:var(--text-dark);">Share Your Feedback</h2>
+            <p class="text-muted" style="font-size:0.9rem;">How was your experience at <strong th:text="${event.title}">Event</strong>?</p>
+        </div>
+
+        <form th:action="@{/feedback/{id}(id=${event.id})}" th:object="${feedback}" method="post">
+            <div class="form-group">
+                <label class="form-label" for="studentName">Your Name *</label>
+                <input type="text" id="studentName" th:field="*{studentName}" class="form-control"
+                       th:classappend="${#fields.hasErrors('studentName')} ? 'is-invalid'"
+                       placeholder="Enter your name"/>
+                <span class="form-error" th:if="${#fields.hasErrors('studentName')}" th:errors="*{studentName}"></span>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Rating *</label>
+                <div class="star-rating" style="margin-bottom:0.5rem;">
+                    <span class="star" data-value="1">★</span>
+                    <span class="star" data-value="2">★</span>
+                    <span class="star" data-value="3">★</span>
+                    <span class="star" data-value="4">★</span>
+                    <span class="star" data-value="5">★</span>
+                </div>
+                <input type="hidden" id="ratingInput" th:field="*{rating}"/>
+                <span class="form-error" th:if="${#fields.hasErrors('rating')}" th:errors="*{rating}"></span>
+                <span class="form-hint">Click a star to rate (1 = Poor, 5 = Excellent)</span>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="comment">Your Comment *</label>
+                <textarea id="comment" th:field="*{comment}" class="form-control"
+                          th:classappend="${#fields.hasErrors('comment')} ? 'is-invalid'"
+                          rows="4" placeholder="Share your experience, what you liked, and suggestions for improvement..."></textarea>
+                <span class="form-error" th:if="${#fields.hasErrors('comment')}" th:errors="*{comment}"></span>
+            </div>
+
+            <div style="display:flex;gap:1rem;flex-wrap:wrap;">
+                <button type="submit" class="btn btn-primary btn-lg">
+                    <i class="fas fa-paper-plane"></i> Submit Feedback
+                </button>
+                <a href="/events" class="btn btn-outline btn-lg">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+<script th:src="@{/js/main.js}"></script>
+</body>
+</html>

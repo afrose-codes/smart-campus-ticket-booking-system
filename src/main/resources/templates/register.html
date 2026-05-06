@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Register for Event - SmartCampus</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}"/>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+</head>
+<body>
+<nav class="navbar">
+    <a href="/" class="navbar-brand"><div class="brand-icon"><i class="fas fa-calendar-star"></i></div>SmartCampus</a>
+    <ul class="navbar-nav">
+        <li><a href="/">Home</a></li>
+        <li><a href="/events" class="active">Events</a></li>
+        <li><a href="/my-registrations">My Registrations</a></li>
+    </ul>
+    <div class="navbar-actions">
+        <a href="/login" class="btn btn-primary btn-sm">Admin Login</a>
+    </div>
+</nav>
+
+<div class="page-content" style="max-width:800px;margin:0 auto;">
+    <a href="/events" style="display:inline-flex;align-items:center;gap:0.5rem;color:var(--text-muted);text-decoration:none;font-size:0.88rem;margin-bottom:1.5rem;">
+        <i class="fas fa-arrow-left"></i> Back to Events
+    </a>
+
+    <!-- Event Summary Card -->
+    <div class="card" style="padding:1.5rem;margin-bottom:1.5rem;display:flex;gap:1.5rem;align-items:center;flex-wrap:wrap;">
+        <div style="width:80px;height:80px;background:var(--gradient);border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:2rem;flex-shrink:0;">🎓</div>
+        <div style="flex:1;">
+            <span class="event-type-badge badge-workshop" th:text="${event.type}">Type</span>
+            <h2 style="font-size:1.2rem;font-weight:800;color:var(--text-dark);" th:text="${event.title}">Title</h2>
+            <div style="display:flex;gap:1.5rem;flex-wrap:wrap;margin-top:0.5rem;">
+                <span class="event-meta-item" style="font-size:0.82rem;">
+                    <i class="fas fa-calendar-alt"></i>
+                    <span th:text="${#temporals.format(event.eventDate, 'dd MMM yyyy, hh:mm a')}">Date</span>
+                </span>
+                <span class="event-meta-item" style="font-size:0.82rem;">
+                    <i class="fas fa-map-marker-alt"></i>
+                    <span th:text="${event.venue}">Venue</span>
+                </span>
+                <span class="event-meta-item" style="font-size:0.82rem;">
+                    <i class="fas fa-users"></i>
+                    <span th:text="${event.availableSeats} + ' seats available'">Seats</span>
+                </span>
+            </div>
+        </div>
+        <div style="text-align:right;">
+            <div class="event-price" th:text="${event.ticketPrice != null and event.ticketPrice > 0} ? '₹' + ${event.ticketPrice} + '/ticket' : 'FREE'">FREE</div>
+        </div>
+    </div>
+
+    <!-- Registration Form -->
+    <div class="card" style="padding:2rem;">
+        <h2 style="font-size:1.4rem;font-weight:800;margin-bottom:0.4rem;">Registration Form</h2>
+        <p class="text-muted" style="font-size:0.88rem;margin-bottom:1.5rem;">Fill in your details to register for this event</p>
+
+        <div th:if="${errorMessage}" class="alert alert-error">
+            <i class="fas fa-exclamation-circle"></i>
+            <span th:text="${errorMessage}">Error</span>
+        </div>
+
+        <form id="registrationForm" th:action="@{/register/{id}(id=${event.id})}" th:object="${registration}" method="post">
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label" for="studentName">Full Name *</label>
+                    <input type="text" id="studentName" th:field="*{studentName}" class="form-control"
+                           th:classappend="${#fields.hasErrors('studentName')} ? 'is-invalid'"
+                           placeholder="Enter your full name"/>
+                    <span class="form-error" th:if="${#fields.hasErrors('studentName')}" th:errors="*{studentName}"></span>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="department">Department *</label>
+                    <select id="department" th:field="*{department}" class="form-select"
+                            th:classappend="${#fields.hasErrors('department')} ? 'is-invalid'">
+                        <option value="">Select Department</option>
+                        <option value="Computer Science">Computer Science</option>
+                        <option value="Electronics">Electronics</option>
+                        <option value="Management">Management</option>
+                        <option value="Mechanical">Mechanical</option>
+                        <option value="Civil">Civil</option>
+                        <option value="Other">Other</option>
+                    </select>
+                    <span class="form-error" th:if="${#fields.hasErrors('department')}" th:errors="*{department}"></span>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label" for="ticketsBooked">Number of Tickets *</label>
+                    <input type="number" id="ticketsBooked" th:field="*{ticketsBooked}" class="form-control"
+                           th:classappend="${#fields.hasErrors('ticketsBooked')} ? 'is-invalid'"
+                           min="1" max="10" placeholder="1"
+                           th:attr="max=${event.availableSeats}"/>
+                    <input type="hidden" id="maxSeats" th:value="${event.availableSeats}"/>
+                    <span class="form-hint">Max <span th:text="${event.availableSeats}">10</span> tickets available</span>
+                    <span class="form-error" th:if="${#fields.hasErrors('ticketsBooked')}" th:errors="*{ticketsBooked}"></span>
+                </div>
+            </div>
+
+            <!-- ===== OTP VERIFICATION SECTION ===== -->
+            <div style="background:rgba(108,99,255,0.05);border:1px solid rgba(108,99,255,0.2);
+                        border-radius:var(--radius-sm);padding:1.25rem;margin:1rem 0;">
+                <h4 style="font-size:0.95rem;font-weight:700;color:var(--text-dark);margin-bottom:0.75rem;">
+                    📧 Email Verification (OTP)
+                </h4>
+                <p style="font-size:0.82rem;color:var(--text-muted);margin-bottom:1rem;">
+                    Verify your college email before submitting. An OTP will be sent to your email.
+                </p>
+
+                <div class="form-row" style="align-items:flex-end;">
+                    <div class="form-group" style="margin-bottom:0;">
+                        <label class="form-label" for="otpEmail">College Email *</label>
+                        <input type="email" id="otpEmail" th:field="*{email}" class="form-control"
+                               th:classappend="${#fields.hasErrors('email')} ? 'is-invalid'"
+                               placeholder="your@college.edu"/>
+                        <span class="form-error" th:if="${#fields.hasErrors('email')}" th:errors="*{email}"></span>
+                    </div>
+                    <div class="form-group" style="margin-bottom:0;flex:0;min-width:160px;">
+                        <label class="form-label">&nbsp;</label>
+                        <button type="button" id="sendOtpBtn" class="btn btn-outline"
+                                style="width:100%;justify-content:center;" onclick="sendOtp()">
+                            <i class="fas fa-paper-plane"></i> Send OTP
+                        </button>
+                    </div>
+                </div>
+
+                <div id="otpSection" style="display:none;margin-top:1rem;">
+                    <div class="form-row" style="align-items:flex-end;">
+                        <div class="form-group" style="margin-bottom:0;">
+                            <label class="form-label" for="otpInput">Enter OTP *</label>
+                            <input type="text" id="otpInput" class="form-control"
+                                   placeholder="6-digit OTP" maxlength="6"
+                                   style="letter-spacing:0.3rem;font-size:1.1rem;font-weight:700;"/>
+                        </div>
+                        <div class="form-group" style="margin-bottom:0;flex:0;min-width:160px;">
+                            <label class="form-label">&nbsp;</label>
+                            <button type="button" id="verifyOtpBtn" class="btn btn-outline"
+                                    style="width:100%;justify-content:center;" onclick="verifyOtp()">
+                                <i class="fas fa-check"></i> Verify OTP
+                            </button>
+                        </div>
+                    </div>
+                    <div id="otpMessage" style="margin-top:0.5rem;font-size:0.82rem;"></div>
+                </div>
+
+                <div id="verifiedBadge" style="display:none;margin-top:0.75rem;">
+                    <span style="background:rgba(16,185,129,0.1);color:#065F46;padding:0.4rem 1rem;
+                                 border-radius:var(--radius-pill);font-size:0.82rem;font-weight:600;">
+                        ✅ Email verified successfully!
+                    </span>
+                </div>
+            </div>
+
+            <!-- Hidden field to pass OTP verification status to server -->
+            <input type="hidden" id="otpVerified" name="otpVerified" value="false"/>
+
+            <div style="display:flex;gap:1rem;margin-top:1rem;flex-wrap:wrap;">
+                <button type="submit" id="submitBtn" class="btn btn-primary btn-lg" disabled
+                        style="opacity:0.5;cursor:not-allowed;">
+                    <i class="fas fa-ticket-alt"></i> Confirm Registration
+                </button>
+                <a href="/events" class="btn btn-outline btn-lg">Cancel</a>
+            </div>
+            <p style="font-size:0.78rem;color:var(--text-muted);margin-top:0.5rem;">
+                * You must verify your email via OTP before submitting.
+            </p>
+        </form>
+
+        <script>
+        let otpVerifiedFlag = false;
+
+        function sendOtp() {
+            const email = document.getElementById('otpEmail').value.trim();
+            if (!email) {
+                showOtpMsg('Please enter your email address first.', 'error');
+                return;
+            }
+            const btn = document.getElementById('sendOtpBtn');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
+
+            fetch('/api/otp/send', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({email: email})
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.success) {
+                    document.getElementById('otpSection').style.display = 'block';
+                    showOtpMsg('OTP sent! Check your inbox (valid 5 minutes).', 'success');
+                    btn.innerHTML = '<i class="fas fa-redo"></i> Resend OTP';
+                } else {
+                    showOtpMsg(data.message || 'Failed to send OTP.', 'error');
+                    btn.innerHTML = '<i class="fas fa-paper-plane"></i> Send OTP';
+                }
+                btn.disabled = false;
+            })
+            .catch(() => {
+                showOtpMsg('Network error. Please try again.', 'error');
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-paper-plane"></i> Send OTP';
+            });
+        }
+
+        function verifyOtp() {
+            const email = document.getElementById('otpEmail').value.trim();
+            const otp   = document.getElementById('otpInput').value.trim();
+            if (!otp) { showOtpMsg('Please enter the OTP.', 'error'); return; }
+
+            const btn = document.getElementById('verifyOtpBtn');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Verifying...';
+
+            fetch('/api/otp/verify', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({email: email, otp: otp})
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.verified) {
+                    otpVerifiedFlag = true;
+                    document.getElementById('otpVerified').value = 'true';
+                    document.getElementById('otpSection').style.display = 'none';
+                    document.getElementById('verifiedBadge').style.display = 'block';
+                    const submitBtn = document.getElementById('submitBtn');
+                    submitBtn.disabled = false;
+                    submitBtn.style.opacity = '1';
+                    submitBtn.style.cursor = 'pointer';
+                    showOtpMsg('', '');
+                } else {
+                    showOtpMsg(data.message || 'Invalid OTP. Please try again.', 'error');
+                    btn.disabled = false;
+                    btn.innerHTML = '<i class="fas fa-check"></i> Verify OTP';
+                }
+            })
+            .catch(() => {
+                showOtpMsg('Network error. Please try again.', 'error');
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-check"></i> Verify OTP';
+            });
+        }
+
+        function showOtpMsg(msg, type) {
+            const el = document.getElementById('otpMessage');
+            el.textContent = msg;
+            el.style.color = type === 'success' ? '#065F46' : '#991B1B';
+        }
+
+        // Prevent form submission if OTP not verified
+        document.getElementById('registrationForm').addEventListener('submit', function(e) {
+            if (!otpVerifiedFlag) {
+                e.preventDefault();
+                alert('Please verify your email with OTP before submitting.');
+            }
+        });
+        </script>
+    </div>
+</div>
+<script th:src="@{/js/main.js}"></script>
+</body>
+</html>

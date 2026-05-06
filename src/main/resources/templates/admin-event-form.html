@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title th:text="${isEdit} ? 'Edit Event' : 'Add New Event'">Event Form</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}"/>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+</head>
+<body>
+<div class="dashboard-layout">
+    <aside class="sidebar">
+        <a href="/admin/dashboard" class="sidebar-logo">
+            <div class="logo-icon"><i class="fas fa-calendar-star"></i></div>
+            SmartCampus
+        </a>
+        <ul class="sidebar-nav" style="margin-top:1rem;">
+            <li><a href="/admin/dashboard"><span class="nav-icon">🏠</span> Dashboard</a></li>
+            <li><a href="/admin/events"><span class="nav-icon">📅</span> Manage Events</a></li>
+            <li><a href="/admin/events/new" class="active"><span class="nav-icon">➕</span> Add New Event</a></li>
+            <li><a href="/admin/stats"><span class="nav-icon">📊</span> Statistics</a></li>
+            <li><a href="/admin/checkin"><span class="nav-icon">✅</span> Check-In</a></li>
+        </ul>
+        <div style="margin-top:auto;padding-top:1.5rem;">
+            <form th:action="@{/logout}" method="post">
+                <button type="submit" style="width:100%;display:flex;align-items:center;gap:0.75rem;padding:0.65rem 0.75rem;color:#EF4444;background:none;border:none;cursor:pointer;font-size:0.88rem;border-radius:var(--radius-sm);">
+                    <span>🚪</span> Logout
+                </button>
+            </form>
+        </div>
+    </aside>
+
+    <main class="dashboard-main">
+        <div style="max-width:800px;">
+            <a href="/admin/events" style="display:inline-flex;align-items:center;gap:0.5rem;color:var(--text-muted);text-decoration:none;font-size:0.88rem;margin-bottom:1.5rem;">
+                <i class="fas fa-arrow-left"></i> Back to Events
+            </a>
+
+            <div class="card" style="padding:2rem;">
+                <h2 style="font-size:1.4rem;font-weight:800;margin-bottom:0.4rem;"
+                    th:text="${isEdit} ? '✏️ Edit Event' : '➕ Add New Event'">Form</h2>
+                <p class="text-muted" style="font-size:0.88rem;margin-bottom:1.5rem;">
+                    Fill in the event details below
+                </p>
+
+                <form th:action="${isEdit} ? @{/admin/events/edit/{id}(id=${event.id})} : @{/admin/events/new}"
+                      th:object="${event}" method="post">
+
+                    <div class="form-row">
+                        <div class="form-group" style="grid-column:1/-1;">
+                            <label class="form-label">Event Title *</label>
+                            <input type="text" th:field="*{title}" class="form-control"
+                                   th:classappend="${#fields.hasErrors('title')} ? 'is-invalid'"
+                                   placeholder="e.g. National Tech Fest 2025"/>
+                            <span class="form-error" th:if="${#fields.hasErrors('title')}" th:errors="*{title}"></span>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Department *</label>
+                            <select th:field="*{department}" class="form-select"
+                                    th:classappend="${#fields.hasErrors('department')} ? 'is-invalid'">
+                                <option value="">Select Department</option>
+                                <option value="Computer Science">Computer Science</option>
+                                <option value="Electronics">Electronics</option>
+                                <option value="Management">Management</option>
+                                <option value="Mechanical">Mechanical</option>
+                                <option value="Civil">Civil</option>
+                                <option value="All Departments">All Departments</option>
+                            </select>
+                            <span class="form-error" th:if="${#fields.hasErrors('department')}" th:errors="*{department}"></span>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Event Type *</label>
+                            <select th:field="*{type}" class="form-select"
+                                    th:classappend="${#fields.hasErrors('type')} ? 'is-invalid'">
+                                <option value="">Select Type</option>
+                                <option value="Workshop">Workshop</option>
+                                <option value="Seminar">Seminar</option>
+                                <option value="Technical Fest">Technical Fest</option>
+                                <option value="Cultural Event">Cultural Event</option>
+                                <option value="Conference">Conference</option>
+                                <option value="Sports">Sports</option>
+                            </select>
+                            <span class="form-error" th:if="${#fields.hasErrors('type')}" th:errors="*{type}"></span>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Description *</label>
+                        <textarea th:field="*{description}" class="form-control" rows="4"
+                                  th:classappend="${#fields.hasErrors('description')} ? 'is-invalid'"
+                                  placeholder="Describe the event, what attendees will learn or experience..."></textarea>
+                        <span class="form-error" th:if="${#fields.hasErrors('description')}" th:errors="*{description}"></span>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Event Date &amp; Time *</label>
+                            <input type="datetime-local" th:field="*{eventDate}" class="form-control"
+                                   th:classappend="${#fields.hasErrors('eventDate')} ? 'is-invalid'"/>
+                            <span class="form-error" th:if="${#fields.hasErrors('eventDate')}" th:errors="*{eventDate}"></span>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Venue *</label>
+                            <input type="text" th:field="*{venue}" class="form-control"
+                                   th:classappend="${#fields.hasErrors('venue')} ? 'is-invalid'"
+                                   placeholder="e.g. Main Auditorium, Block A"/>
+                            <span class="form-error" th:if="${#fields.hasErrors('venue')}" th:errors="*{venue}"></span>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Total Capacity *</label>
+                            <input type="number" th:field="*{capacity}" class="form-control" min="1"
+                                   th:classappend="${#fields.hasErrors('capacity')} ? 'is-invalid'"
+                                   placeholder="e.g. 200"/>
+                            <span class="form-error" th:if="${#fields.hasErrors('capacity')}" th:errors="*{capacity}"></span>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Ticket Price (₹)</label>
+                            <input type="number" th:field="*{ticketPrice}" class="form-control" min="0" step="0.01"
+                                   placeholder="0 for FREE"/>
+                            <span class="form-hint">Enter 0 for free events</span>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Event Image URL (optional)</label>
+                        <input type="url" th:field="*{imageUrl}" class="form-control"
+                               placeholder="https://example.com/image.jpg"/>
+                        <span class="form-hint">Paste a direct image URL for the event card thumbnail</span>
+                    </div>
+
+                    <!-- Feature 3: Venue Address for Google Maps -->
+                    <div class="form-group">
+                        <label class="form-label">Venue Address (for Google Maps, optional)</label>
+                        <input type="text" th:field="*{venueAddress}" class="form-control"
+                               placeholder="e.g. IIT Bombay, Powai, Mumbai, Maharashtra 400076"
+                               id="venueAddressInput"/>
+                        <span class="form-hint">Full address used to embed a Google Map on the event detail page</span>
+                    </div>
+
+                    <!-- Map preview for admin -->
+                    <div id="mapPreview" style="display:none;margin-bottom:1.25rem;">
+                        <p style="font-size:0.82rem;font-weight:600;color:var(--text-dark);margin-bottom:0.5rem;">Map Preview:</p>
+                        <div style="border-radius:var(--radius-sm);overflow:hidden;border:1px solid var(--border);">
+                            <iframe id="mapFrame" width="100%" height="220"
+                                    style="border:0;display:block;" loading="lazy"></iframe>
+                        </div>
+                    </div>
+
+                    <script>
+                    (function() {
+                        const input = document.getElementById('venueAddressInput');
+                        const preview = document.getElementById('mapPreview');
+                        const frame = document.getElementById('mapFrame');
+                        let debounceTimer;
+
+                        // Show preview for existing address on page load
+                        if (input && input.value.trim()) {
+                            updateMap(input.value.trim());
+                        }
+
+                        if (input) {
+                            input.addEventListener('input', function() {
+                                clearTimeout(debounceTimer);
+                                debounceTimer = setTimeout(() => {
+                                    const addr = input.value.trim();
+                                    if (addr.length > 5) updateMap(addr);
+                                    else preview.style.display = 'none';
+                                }, 800);
+                            });
+                        }
+
+                        function updateMap(address) {
+                            const encoded = encodeURIComponent(address);
+                            frame.src = 'https://maps.google.com/maps?q=' + encoded + '&output=embed';
+                            preview.style.display = 'block';
+                        }
+                    })();
+                    </script>
+
+                    <div style="display:flex;gap:1rem;margin-top:1rem;flex-wrap:wrap;">
+                        <button type="submit" class="btn btn-primary btn-lg">
+                            <i th:class="${isEdit} ? 'fas fa-save' : 'fas fa-plus'"></i>
+                            <span th:text="${isEdit} ? 'Update Event' : 'Create Event'">Submit</span>
+                        </button>
+                        <a href="/admin/events" class="btn btn-outline btn-lg">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </main>
+</div>
+<script th:src="@{/js/main.js}"></script>
+</body>
+</html>

@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>My Registrations - SmartCampus</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}"/>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+</head>
+<body>
+
+<nav class="navbar">
+    <a href="/" class="navbar-brand">
+        <div class="brand-icon"><i class="fas fa-calendar-star"></i></div>
+        SmartCampus
+    </a>
+    <ul class="navbar-nav">
+        <li><a href="/">Home</a></li>
+        <li><a href="/events">Events</a></li>
+        <li><a href="/my-registrations" class="active">My Registrations</a></li>
+        <li><a href="/student-dashboard">Dashboard</a></li>
+    </ul>
+    <div class="navbar-actions">
+        <a href="/user-register" class="btn btn-outline btn-sm">Create Account</a>
+        <a href="/login" class="btn btn-primary btn-sm">Sign In</a>
+    </div>
+</nav>
+
+<div class="page-header">
+    <div>
+        <h1>🎫 My Registrations</h1>
+        <p>View all your event registrations by entering your email address</p>
+    </div>
+</div>
+
+<div class="page-content" style="max-width:900px;margin:0 auto;">
+
+    <!-- Email Search Form -->
+    <div class="card" style="padding:1.5rem;margin-bottom:1.5rem;">
+        <form method="get" action="/my-registrations"
+              style="display:flex;gap:1rem;align-items:flex-end;flex-wrap:wrap;">
+            <div class="form-group" style="flex:1;min-width:250px;margin-bottom:0;">
+                <label class="form-label">Enter Your Registered Email Address</label>
+                <input type="email" name="email" class="form-control"
+                       placeholder="your@email.com"
+                       th:value="${email}"/>
+            </div>
+            <button type="submit" class="btn btn-primary">
+                <i class="fas fa-search"></i> Find Registrations
+            </button>
+        </form>
+    </div>
+
+    <!-- Fetch error -->
+    <div th:if="${fetchError}" class="alert alert-error">
+        <i class="fas fa-exclamation-circle"></i>
+        <span th:text="${fetchError}">Error</span>
+    </div>
+
+    <!-- Not yet searched -->
+    <div th:if="${!searched}" style="text-align:center;padding:3rem;">
+        <div style="font-size:3rem;margin-bottom:1rem;">🔍</div>
+        <p class="text-muted">Enter your email address above to view your event registrations.</p>
+    </div>
+
+    <!-- Searched but no results -->
+    <div th:if="${searched and (registrations == null or registrations.isEmpty()) and fetchError == null}"
+         style="text-align:center;padding:3rem;">
+        <div style="font-size:3rem;margin-bottom:1rem;">📭</div>
+        <h3 style="color:var(--text-dark);margin-bottom:0.5rem;">No Registrations Found</h3>
+        <p class="text-muted">
+            No event registrations found for
+            <strong th:text="${email}">your email</strong>.
+        </p>
+        <a href="/events" class="btn btn-primary mt-3">
+            <i class="fas fa-calendar-alt"></i> Browse Events
+        </a>
+    </div>
+
+    <!-- Results list -->
+    <div th:if="${searched and registrations != null and !registrations.isEmpty()}">
+        <p class="text-muted mb-3" style="font-size:0.88rem;">
+            Found <strong th:text="${registrations.size()}">0</strong>
+            registration(s) for <strong th:text="${email}">email</strong>
+        </p>
+
+        <div style="display:flex;flex-direction:column;gap:1rem;">
+            <div th:each="reg : ${registrations}" class="card" style="padding:1.5rem;">
+                <div style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:1rem;">
+
+                    <!-- Left: event info -->
+                    <div style="flex:1;">
+                        <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:0.75rem;">
+                            <div style="width:44px;height:44px;background:var(--gradient);border-radius:12px;
+                                        display:flex;align-items:center;justify-content:center;
+                                        color:white;font-size:1.1rem;flex-shrink:0;">🎓</div>
+                            <div>
+                                <!-- Safe: reg.event is EAGER loaded -->
+                                <div style="font-weight:700;color:var(--text-dark);"
+                                     th:text="${reg.event != null} ? ${reg.event.title} : 'Unknown Event'">
+                                    Event Title
+                                </div>
+                                <div style="font-size:0.8rem;color:var(--text-muted);"
+                                     th:text="${reg.event != null and reg.event.eventDate != null}
+                                              ? ${reg.event.eventDate.toString().replace('T',' ').substring(0,16)}
+                                              : 'Date not available'">
+                                    Date
+                                </div>
+                            </div>
+                        </div>
+
+                        <div style="display:flex;gap:1.5rem;flex-wrap:wrap;font-size:0.82rem;color:var(--text-muted);">
+                            <span>
+                                <i class="fas fa-map-marker-alt"></i>
+                                <span th:text="${reg.event != null} ? ${reg.event.venue} : 'N/A'">Venue</span>
+                            </span>
+                            <span>
+                                <i class="fas fa-ticket-alt"></i>
+                                <span th:text="${reg.ticketsBooked} + ' ticket(s)'">Tickets</span>
+                            </span>
+                            <span>
+                                <i class="fas fa-user"></i>
+                                <span th:text="${reg.studentName}">Name</span>
+                            </span>
+                            <span>
+                                <i class="fas fa-clock"></i>
+                                Registered:
+                                <span th:text="${reg.registeredAt != null}
+                                              ? ${reg.registeredAt.toString().replace('T',' ').substring(0,16)}
+                                              : 'N/A'">Date</span>
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- Right: badge + feedback button -->
+                    <div style="display:flex;flex-direction:column;gap:0.5rem;align-items:flex-end;">
+                        <span class="event-type-badge badge-default"
+                              th:text="${reg.event != null} ? ${reg.event.type} : 'Event'">Type</span>
+                        <a th:if="${reg.event != null}"
+                           th:href="@{/feedback/{id}(id=${reg.event.id})}"
+                           class="btn btn-outline btn-sm">
+                            <i class="fas fa-star"></i> Give Feedback
+                        </a>
+                        <!-- Feature 5: QR Code Ticket Download -->
+                        <a th:href="'/api/qr/' + ${reg.id}"
+                           target="_blank"
+                           class="btn btn-sm"
+                           style="background:rgba(108,99,255,0.1);color:var(--primary);border:1px solid rgba(108,99,255,0.3);">
+                            <i class="fas fa-qrcode"></i> Download Ticket
+                        </a>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script th:src="@{/js/main.js}"></script>
+
+<!-- ===== FEATURE 2: AI CHATBOT WIDGET ===== -->
+<div id="chatbotBubble" onclick="toggleChat()"
+     style="position:fixed;bottom:2rem;right:2rem;z-index:9999;width:56px;height:56px;border-radius:50%;background:linear-gradient(135deg,#6C63FF,#3B82F6);display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 8px 25px rgba(108,99,255,0.45);transition:transform 0.2s;">
+    <i class="fas fa-comment-dots" style="color:white;font-size:1.4rem;"></i>
+    <span style="position:absolute;top:2px;right:2px;width:12px;height:12px;background:#10B981;border-radius:50%;border:2px solid white;"></span>
+</div>
+<div id="chatPanel" style="display:none;position:fixed;bottom:5.5rem;right:2rem;z-index:9998;width:340px;max-height:480px;background:white;border-radius:20px;box-shadow:0 20px 60px rgba(108,99,255,0.2);border:1px solid rgba(108,99,255,0.15);flex-direction:column;overflow:hidden;">
+    <div style="background:linear-gradient(135deg,#6C63FF,#3B82F6);padding:1rem 1.25rem;display:flex;align-items:center;justify-content:space-between;">
+        <div style="display:flex;align-items:center;gap:0.6rem;">
+            <div style="width:36px;height:36px;background:rgba(255,255,255,0.2);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1rem;">🤖</div>
+            <div><div style="color:white;font-weight:700;font-size:0.9rem;">Campus Assistant</div><div style="color:rgba(255,255,255,0.8);font-size:0.72rem;">Ask me about events!</div></div>
+        </div>
+        <button onclick="toggleChat()" style="background:rgba(255,255,255,0.2);border:none;color:white;width:28px;height:28px;border-radius:50%;cursor:pointer;font-size:0.9rem;">✕</button>
+    </div>
+    <div id="chatMessages" style="flex:1;overflow-y:auto;padding:1rem;display:flex;flex-direction:column;gap:0.75rem;max-height:300px;min-height:200px;">
+        <div class="chat-msg bot"><div class="chat-bubble bot-bubble">👋 Hi! Ask me about upcoming events, venues, or registration status!</div></div>
+    </div>
+    <div style="padding:0.75rem;border-top:1px solid #f3f4f6;display:flex;gap:0.5rem;">
+        <input id="chatInput" type="text" placeholder="Ask about events..." style="flex:1;padding:0.6rem 0.9rem;border:2px solid #E5E7EB;border-radius:50px;font-size:0.85rem;outline:none;font-family:inherit;" onkeydown="if(event.key==='Enter')sendChat()"/>
+        <button onclick="sendChat()" style="width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,#6C63FF,#3B82F6);border:none;color:white;cursor:pointer;font-size:0.9rem;display:flex;align-items:center;justify-content:center;"><i class="fas fa-paper-plane"></i></button>
+    </div>
+</div>
+<style>.chat-msg{display:flex}.chat-msg.bot{justify-content:flex-start}.chat-msg.user{justify-content:flex-end}.chat-bubble{max-width:80%;padding:0.6rem 0.9rem;border-radius:16px;font-size:0.83rem;line-height:1.5;white-space:pre-wrap}.bot-bubble{background:#F8F9FF;color:#1E1B4B;border-bottom-left-radius:4px}.user-bubble{background:linear-gradient(135deg,#6C63FF,#3B82F6);color:white;border-bottom-right-radius:4px}.typing-bubble{background:#F8F9FF;color:#6B7280;font-style:italic;border-bottom-left-radius:4px}#chatPanel.open{display:flex!important}#chatbotBubble:hover{transform:scale(1.1)}</style>
+<script>function toggleChat(){const p=document.getElementById('chatPanel');p.classList.toggle('open');if(p.classList.contains('open'))document.getElementById('chatInput').focus();}function sendChat(){const i=document.getElementById('chatInput');const m=i.value.trim();if(!m)return;i.value='';appendMsg(m,'user');const tid=appendTyping();fetch('/api/chatbot/query',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:m,studentEmail:''})}).then(r=>r.json()).then(d=>{removeTyping(tid);appendMsg(d.reply||'Sorry, no response.','bot');}).catch(()=>{removeTyping(tid);appendMsg('Temporarily unavailable.','bot');});}function appendMsg(t,r){const c=document.getElementById('chatMessages');const d=document.createElement('div');d.className='chat-msg '+r;const b=document.createElement('div');b.className='chat-bubble '+(r==='bot'?'bot-bubble':'user-bubble');b.textContent=t;d.appendChild(b);c.appendChild(d);c.scrollTop=c.scrollHeight;}function appendTyping(){const c=document.getElementById('chatMessages');const id='t'+Date.now();const d=document.createElement('div');d.className='chat-msg bot';d.id=id;d.innerHTML='<div class="chat-bubble typing-bubble">⏳ Thinking...</div>';c.appendChild(d);c.scrollTop=c.scrollHeight;return id;}function removeTyping(id){const e=document.getElementById(id);if(e)e.remove();}</script>
+<!-- ===== END CHATBOT WIDGET ===== -->
+</body>
+</html>

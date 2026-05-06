@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Registration Successful - SmartCampus</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}"/>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+</head>
+<body>
+<div class="success-page">
+    <div class="success-card">
+        <div class="success-icon">🎉</div>
+        <h2>Registration Successful!</h2>
+        <p>You have successfully registered for the event. See you there!</p>
+
+        <div th:if="${eventTitle != null}"
+             style="background:var(--bg);border-radius:var(--radius-sm);padding:1.25rem;margin-bottom:1.5rem;text-align:left;">
+            <div style="display:flex;flex-direction:column;gap:0.6rem;font-size:0.88rem;">
+                <div style="display:flex;justify-content:space-between;">
+                    <span class="text-muted">Student Name</span>
+                    <strong th:text="${regStudentName}">Name</strong>
+                </div>
+                <div style="display:flex;justify-content:space-between;">
+                    <span class="text-muted">Email</span>
+                    <strong th:text="${regEmail}">Email</strong>
+                </div>
+                <div style="display:flex;justify-content:space-between;">
+                    <span class="text-muted">Event</span>
+                    <strong th:text="${eventTitle}">Event</strong>
+                </div>
+                <div style="display:flex;justify-content:space-between;">
+                    <span class="text-muted">Tickets Booked</span>
+                    <strong th:text="${regTickets}">1</strong>
+                </div>
+                <div th:if="${regTime != null and regTime != ''}" style="display:flex;justify-content:space-between;">
+                    <span class="text-muted">Registered At</span>
+                    <strong th:text="${regTime}">Time</strong>
+                </div>
+            </div>
+        </div>
+
+        <div style="display:flex;flex-direction:column;gap:0.75rem;">
+            <!-- QR Ticket Download — shown immediately after registration -->
+            <div th:if="${regId != null}"
+                 style="background:rgba(108,99,255,0.05);border:1px solid rgba(108,99,255,0.2);
+                        border-radius:var(--radius-sm);padding:1.25rem;text-align:center;margin-bottom:0.5rem;">
+                <div style="font-size:2rem;margin-bottom:0.5rem;">🎫</div>
+                <p style="font-size:0.88rem;color:var(--text-muted);margin-bottom:0.75rem;">
+                    Your QR ticket is ready! Download it and show at the event entrance.
+                </p>
+                <a th:href="'/api/qr/' + ${regId}"
+                   target="_blank"
+                   class="btn btn-primary"
+                   style="justify-content:center;width:100%;">
+                    <i class="fas fa-qrcode"></i> Download QR Ticket
+                </a>
+            </div>
+
+            <a href="/events" class="btn btn-primary" style="justify-content:center;">
+                <i class="fas fa-calendar-alt"></i> Browse More Events
+            </a>
+            <a href="/my-registrations" class="btn btn-outline" style="justify-content:center;">
+                <i class="fas fa-ticket-alt"></i> View My Registrations
+            </a>
+        </div>
+    </div>
+</div>
+</body>
+</html>

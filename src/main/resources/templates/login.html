@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Sign In - SmartCampus Events</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}"/>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+</head>
+<body>
+<div class="auth-page">
+
+    <!-- LEFT BRAND PANEL — unchanged design -->
+    <div class="auth-brand-panel">
+        <div class="auth-brand-logo">
+            <div class="logo-icon"><i class="fas fa-calendar-star"></i></div>
+            SmartCampus
+        </div>
+        <h1 class="auth-brand-title">Welcome Back!</h1>
+        <p class="auth-brand-sub">Manage campus events, track registrations, and view analytics — all from one powerful dashboard.</p>
+        <ul class="auth-features">
+            <li><div class="feat-check">✓</div> Create &amp; manage campus events</li>
+            <li><div class="feat-check">✓</div> View registration statistics</li>
+            <li><div class="feat-check">✓</div> Monitor student feedback</li>
+            <li><div class="feat-check">✓</div> Filter &amp; search events easily</li>
+            <li><div class="feat-check">✓</div> Full CRUD event management</li>
+        </ul>
+    </div>
+
+    <!-- RIGHT FORM PANEL — unchanged design -->
+    <div class="auth-form-panel">
+        <div style="max-width:400px;width:100%;margin:0 auto;">
+            <div class="auth-form-header">
+                <h2>Sign In</h2>
+                <p>Enter your username or email and password</p>
+            </div>
+
+            <!-- Registration success -->
+            <div th:if="${param.registered}" class="alert alert-success">
+                <i class="fas fa-check-circle"></i>
+                Account created successfully! You can now sign in.
+            </div>
+
+            <!-- Login error -->
+            <div th:if="${param.error}" class="alert alert-error">
+                <i class="fas fa-exclamation-circle"></i>
+                Invalid username/email or password. Please try again.
+            </div>
+
+            <!-- Logout success -->
+            <div th:if="${param.logout}" class="alert alert-success">
+                <i class="fas fa-check-circle"></i>
+                You have been logged out successfully.
+            </div>
+
+            <!-- Registration success (flash attribute) -->
+            <div th:if="${successMessage}" class="alert alert-success">
+                <i class="fas fa-check-circle"></i>
+                <span th:text="${successMessage}">Success</span>
+            </div>
+
+            <form th:action="@{/login}" method="post" autocomplete="off">
+                <div class="form-group">
+                    <label class="form-label" for="username">Username or Email</label>
+                    <input type="text" id="username" name="username" class="form-control"
+                           placeholder="Enter your username or email"
+                           required autocomplete="off"/>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="password">Password</label>
+                    <input type="password" id="password" name="password" class="form-control"
+                           placeholder="Enter your password"
+                           required autocomplete="new-password"/>
+                </div>
+                <button type="submit" class="btn btn-primary w-100"
+                        style="margin-top:0.5rem;justify-content:center;">
+                    <i class="fas fa-sign-in-alt"></i> Sign In
+                </button>
+            </form>
+
+            <p style="text-align:center;margin-top:1.5rem;font-size:0.88rem;color:var(--text-muted);">
+                Don't have an account?
+                <a href="/user-register" style="color:var(--primary);font-weight:600;">Create one here</a>
+            </p>
+            <p style="text-align:center;margin-top:0.5rem;font-size:0.88rem;color:var(--text-muted);">
+                <a href="/" style="color:var(--text-muted);">← Back to Home</a>
+            </p>
+        </div>
+    </div>
+</div>
+<script th:src="@{/js/main.js}"></script>
+</body>
+</html>

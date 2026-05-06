@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Feedback Submitted - SmartCampus</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}"/>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+</head>
+<body>
+<div class="success-page">
+    <div class="success-card">
+        <div class="success-icon">⭐</div>
+        <h2>Feedback Submitted!</h2>
+        <p>Thank you for sharing your experience<span th:if="${eventTitle != null}"> for <strong th:text="${eventTitle}">Event</strong></span>. Your feedback helps us improve future events.</p>
+        <div style="display:flex;flex-direction:column;gap:0.75rem;margin-top:1rem;">
+            <a href="/events" class="btn btn-primary" style="justify-content:center;">Browse More Events</a>
+            <a href="/" class="btn btn-outline" style="justify-content:center;">Back to Home</a>
+        </div>
+    </div>
+</div>
+</body>
+</html>
